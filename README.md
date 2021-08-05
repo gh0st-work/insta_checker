@@ -74,7 +74,7 @@ url_data = data[url]
 ```
 
 ### To scrape data from source run function "source_to_data" in InstaChecler isntance with params:
- - url: Url to scrape
+ - response_result: Dict like in the example
 
 Example:
 
