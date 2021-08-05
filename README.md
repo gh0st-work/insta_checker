@@ -1,10 +1,10 @@
 # insta_checker
 
-**Python Instagram checker / scrapper 2021. Fastly and asynchronously scrapes Instagram profiles and posts, powered by aiohttp.**
+## **Python Instagram checker / scrapper 2021. Fastly and asynchronously scrapes Instagram profiles and posts, powered by aiohttp.**
 
-My needs for one project included scraping likes, the number of subscribers and so on from Instagram. When I wrote this library, I copied a huge bunch (about 30) of other scrapping libraries in Python or JavaScript. There was one abandoned library, but it died after a month of use. Actually, I wrote my own library, which is this repository.
+My needs for one project included scraping likes, the number of subscribers and so on from Instagram. When I wrote this library, I've cheked out a huge bunch (about 30) of other scrapping libraries in Python or JavaScript. There was only one abandoned library, but it died after a month of use. Actually, I wrote my own library, which is this repository.
 
-Working with this library, you are expected:
+### Working with this library, you are expected:
 
 - Fully works in 2021
 - The fastest library for requests - aiohttp
@@ -26,13 +26,13 @@ or
 
 
 # Usage
-- Create instance of InstaChecker with keywords:
-    - cookie: Instagram cookie, you must take it after auth, to get requests' statuses ok (str)
-    - proxy: Proxy, if needed (str) ex: http://user:pass@some.proxy.com
-    - user_agent: User-Agent header property (str)
-    - timeout: Sleep after request in seconds (float)
-    - max_async_requests_count: Maximum count of async requests (int)
-    - Show debug messages or not (bool)
+## Create instance of InstaChecker with keywords:
+- cookie: Instagram cookie, you must take it after auth, to get requests' statuses ok (str)
+- proxy: Proxy, if needed (str) ex: http://user:pass@some.proxy.com
+- user_agent: User-Agent header property (str)
+- timeout: Sleep after request in seconds (float)
+- max_async_requests_count: Maximum count of async requests (int)
+- Show debug messages or not (bool)
 
 Example:
 
@@ -47,8 +47,8 @@ checker = InstaChecker(
 )
 ```
 
-- To use in default mode run function "run" in InstaChecler isntance with params:
-    - urls: List of urls
+### To use in default mode run function "run" in InstaChecler isntance with params:
+ - urls: List of urls
 
 Example:
 
@@ -61,8 +61,8 @@ for url in urls_list:
     print(responses[url])
 ```
 
-- To scrape one url run function "get_response" in InstaChecler isntance with params:
-    - url: Url to scrape
+### To scrape one url run function "get_response" in InstaChecler isntance with params:
+ - url: Url to scrape
 
 Example:
 
@@ -73,8 +73,8 @@ data = asyncio.run(task)
 url_data = data[url]
 ```
 
-- To scrape data from source run function "source_to_data" in InstaChecler isntance with params:
-    - url: Url to scrape
+### To scrape data from source run function "source_to_data" in InstaChecler isntance with params:
+ - url: Url to scrape
 
 Example:
 
@@ -90,7 +90,7 @@ data = data['data']
 ```
 
 # Examples
-**run.py**
+### run.py
 ```python
 from insta_checker import InstaChecker, super_print
 import asyncio
@@ -219,7 +219,7 @@ AAA&ccb=7-4&oh=1b06c2d085eb2df02df724b681a45906&oe=6111E10F&_nc_sid=48a2a6&ig_ca
 ------ 1
 ```
 
-**get_response.py**
+### get_response.py
 ```python
 from insta_checker import InstaChecker, super_print
 import asyncio
@@ -269,7 +269,7 @@ data['media_count'] = 1
 data['recent_media'][0]['text'] = "Photo by Testing on June 26, 2021. May be an image of text that says 'x 6 Game Over × WINNER! Restart game GAMES & TOYS TOOLS'."
 ```
 
-**source_to_data.py**
+### source_to_data.py
 ```python
 import sys
 from insta_checker import InstaChecker, super_print
