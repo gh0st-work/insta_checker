@@ -134,19 +134,9 @@ class InstaChecker:
             urls = []
 
         if check:
-            if self.loop:
-                if self.loop.is_running():
-                    self.loop.run_until_complete(self.check_conf())
-            else:
-                asyncio.run(self.check_conf())
+            await self.check_conf()
         if self.ready:
-            if self.loop:
-                if self.loop.is_running():
-                    responses = self.loop.run_until_complete(self.get_responses(urls))
-                else:
-                    responses = asyncio.run(self.get_responses(urls))
-            else:
-                responses = asyncio.run(self.get_responses(urls))
+            responses = await self.get_responses(urls)
             return responses
 
         else:
