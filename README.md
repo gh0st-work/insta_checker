@@ -1,6 +1,6 @@
 # insta_checker
 
-## **Python Instagram checker / scrapper 2021. Fastly and asynchronously scrapes Instagram profiles and posts, powered by aiohttp.**
+## **Python Instagram API checker / scrapper / wrapper 2021. Fast and asynchronously scrapes instagram profiles and posts, powered by aiohttp.**
 
 My needs for one project included scraping likes, the number of subscribers and so on from Instagram. When I wrote this library, I've cheked out a huge bunch (about 30) of other scrapping libraries in Python or JavaScript. There was only one abandoned library, but it died after a month of use. Actually, I wrote my own library, which is this repository.
 
@@ -26,7 +26,7 @@ or
 
 
 # Usage
-## Create instance of InstaChecker with keywords:
+### Create instance of InstaChecker with keywords:
 - cookie: Instagram cookie, you must take it after auth, to get requests' statuses ok (str)
 - proxy: Proxy, if needed (str) ex: http://user:pass@some.proxy.com
 - user_agent: User-Agent header property (str)
@@ -74,7 +74,7 @@ url_data = data[url]
 ```
 
 ### To scrape data from source run function "source_to_data" in InstaChecler isntance with params:
- - url: Url to scrape
+ - response_result: Dict like in the example
 
 Example:
 
