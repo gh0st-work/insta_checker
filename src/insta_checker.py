@@ -87,11 +87,7 @@ class InstaChecker:
             'User-Agent': self.user_agent
         }
 
-        self.loop = None
-        try:
-            self.loop = asyncio.get_running_loop()
-        except RuntimeError:
-            self.loop = None
+        self.loop = asyncio.get_event_loop()
 
 
     async def check_conf(self):
@@ -134,11 +130,11 @@ class InstaChecker:
             urls = []
 
         if check:
-            await self.check_conf()
-        if self.ready:
-            responses = await self.get_responses(urls)
-            return responses
+            self.loop.run_until_complete(self.check_conf())
 
+        if self.ready:
+            responses = self.loop.run_until_complete(self.get_responses(urls))
+            return responses
         else:
             print('InstaChecker - not ready, config FAILed')
             return 'Not ready'
