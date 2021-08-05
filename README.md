@@ -26,7 +26,7 @@ or
 
 
 # Usage
-## Create instance of InstaChecker with keywords:
+### Create instance of InstaChecker with keywords:
 - cookie: Instagram cookie, you must take it after auth, to get requests' statuses ok (str)
 - proxy: Proxy, if needed (str) ex: http://user:pass@some.proxy.com
 - user_agent: User-Agent header property (str)
