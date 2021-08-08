@@ -6,31 +6,31 @@ from typing import Union, Dict, List
 import aiohttp
 
 
-def super_print(data, left: int = 0):
+def super_print(data, offset: int = 0):
     """
 
     Debug stuff, prints data beautifully
 
     :param data: data to print
-    :param left: offset left (int)
+    :param offset: offset left (int)
     :return: nothing, just prints
 
     """
     if isinstance(data, list):
         for item in data:
             try:
-                super_print(item, left + 1)
+                super_print(item, offset + 1)
             except:
-                print('--' * (left + 1) + f' {data}')
+                print('--' * (offset + 1) + f' {data}')
     elif isinstance(data, dict):
         for k, v in data.items():
-            print('--' * (left + 1) + f' {k}')
+            print('--' * (offset + 1) + f' {k}')
             try:
-                super_print(v, left + 1)
+                super_print(v, offset + 2)
             except:
-                print('--' * (left + 1) + f' {v}')
+                print('--' * (offset + 2) + f' {v}')
     else:
-        print('--' * (left + 1) + ' ' + data)
+        print('--' * (offset + 1) + ' ' + data)
 
 
 class InstaChecker:
@@ -87,9 +87,6 @@ class InstaChecker:
             'User-Agent': self.user_agent
         }
 
-        self.loop = asyncio.get_event_loop()
-
-
     async def check_conf(self):
 
         """
@@ -110,7 +107,7 @@ class InstaChecker:
         else:
             print(f"InstaChecker - Config FAIL, errors: {','.join(response[url]['errors'])}")
 
-    def run(
+    async def run(
             self,
             urls: Union[List[str], None] = None,
             check: bool = True
@@ -130,10 +127,10 @@ class InstaChecker:
             urls = []
 
         if check:
-            self.loop.run_until_complete(self.check_conf())
+            await self.check_conf()
 
         if self.ready:
-            responses = self.loop.run_until_complete(self.get_responses(urls))
+            responses = await self.get_responses(urls)
             return responses
         else:
             print('InstaChecker - not ready, config FAILed')
@@ -429,9 +426,9 @@ class InstaChecker:
                 response_result['success'] = False
                 response_result['errors'].append('Not logged in, provide better headers')
         except BaseException as ex:
-            response_result['success'] = True
-            response_result['errors'].append(
-                f"Can't fetch and parse the page. Error: '{ex}'. On line {sys.exc_info()[-1].tb_lineno}")
+            response_result['success'] = False
+            response_result['errors'].append(f"Can't fetch and parse the page. Error: '{ex}'. On line {sys.exc_info()[-1].tb_lineno}")
+        await session.close()
         return {url: response_result}
 
     async def get_responses(
@@ -463,7 +460,6 @@ class InstaChecker:
             for response in responses:
                 for k, v in response.items():
                     responses_dict[k] = v
-            await session.close()
             await asyncio.sleep(self.timeout)
         if self.debug:
             super_print(responses_dict)
