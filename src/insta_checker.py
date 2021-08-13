@@ -157,6 +157,7 @@ class InstaChecker:
                 'full': user,
                 'id': user['id'],
                 'username': user['username'],
+                'is_private': user['is_private'],
                 'connected_fb_page': user['connected_fb_page'],
                 'media_count': user['edge_owner_to_timeline_media']['count'],
                 'biography': user['biography'],
