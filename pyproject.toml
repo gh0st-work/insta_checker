@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "insta-checker"
-version = "0.3.7"
+version = "0.4.0"
 description = "Python Instagram API checker / scrapper / wrapper 2021. Fast and asynchronously scrapes instagram profiles and posts, powered by aiohttp."
 readme = "README.md"
 repository = "https://github.com/gh0st-work/insta_checker"

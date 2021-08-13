@@ -43,7 +43,7 @@ checker = InstaChecker(
 )
 ```
 
-### To use in default mode run function "run" in InstaChecler isntance with params:
+### To use in default mode run function "run" in InstaChecker instance with params:
  - urls: List of urls
  - check: Bool, to check conf or not
 
@@ -58,7 +58,7 @@ for url in urls_list:
     print(responses[url])
 ```
 
-### To scrape one url run function "get_response" in InstaChecler isntance with params:
+### To scrape one url run function "get_response" in InstaChecker instance with params:
  - url: Url to scrape
  - session: aiohttp.ClientSession() or None to create a new one
 
@@ -70,7 +70,7 @@ data = await checker.get_response(url) # async func
 url_data = data[url]
 ```
 
-### To scrape data from source run function "source_to_data" in InstaChecler isntance with params:
+### To scrape data from source run function "source_to_data" in InstaChecker instance with params:
  - response_result: Dict like in the example
 
 Example:

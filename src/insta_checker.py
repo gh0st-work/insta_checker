@@ -154,6 +154,7 @@ class InstaChecker:
         }
         try:
             result = {
+                'full': user,
                 'id': user['id'],
                 'username': user['username'],
                 'connected_fb_page': user['connected_fb_page'],
@@ -170,6 +171,7 @@ class InstaChecker:
                 media = media_node['node']
                 recent_media.append(self.deserialize_media(media, full=False))
                 recent_media.append({
+                    'full': media,
                     'type': media['__typename'].replace('Graph', '').lower(),
                     'id': media['id'],
                     'shortcode': media['shortcode'],
@@ -186,7 +188,6 @@ class InstaChecker:
                     'likes': media['edge_liked_by']['count'],
                     'location': media['location'],
                     'timestamp': media['taken_at_timestamp'],
-                    'full': media
                 })
             result['recent_media'] = recent_media
         except BaseException as ex:
@@ -215,6 +216,7 @@ class InstaChecker:
         try:
             if full:
                 result = {
+                    'full': media,
                     'type': media['__typename'].replace('Graph', '').lower(),
                     'id': media['id'],
                     'shortcode': media['shortcode'],
@@ -238,6 +240,7 @@ class InstaChecker:
                 }
             else:
                 result = {
+                    'full': media,
                     'type': media['__typename'].replace('Graph', '').lower(),
                     'id': media['id'],
                     'shortcode': media['shortcode'],
