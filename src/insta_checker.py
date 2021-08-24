@@ -192,8 +192,13 @@ class InstaChecker:
                 })
             result['recent_media'] = recent_media
         except BaseException as ex:
-            result['errors'] = [
-                f'User deserialization error at line {sys.exc_info()[-1].tb_lineno}. Maybe instagram changed  API, have returned only full']
+            result = {
+                'full': user,
+                'errors': [f'User deserialization error at line {sys.exc_info()[-1].tb_lineno}. Maybe instagram changed  API, have returned only full']
+            }
+        if 'errors' in result.keys():
+            if not len(result['errors']):
+                del result['errors']
         return result
 
     def deserialize_media(
@@ -215,53 +220,64 @@ class InstaChecker:
             'full': media
         }
         try:
-            if full:
-                result = {
-                    'full': media,
-                    'type': media['__typename'].replace('Graph', '').lower(),
-                    'id': media['id'],
-                    'shortcode': media['shortcode'],
-                    'post_url': f"https://www.instagram.com/p/{media['shortcode']}/",
-                    'dimesions': media['dimensions'],
-                    'src': media['display_url'],
-                    'srcs': media['display_resources'],
-                    'is_video': media['is_video'],
-                    'text': media['accessibility_caption'],
-                    'comments_disabled': media['comments_disabled'],
-                    'likes': media['edge_media_preview_like']['count'],
-                    'owner': {
-                        'id': media['owner']['id'],
-                        'profile_pic_url': media['owner']['profile_pic_url'],
-                        'username': media['owner']['username'],
-                        'media_count': media['owner']['edge_owner_to_timeline_media']['count'],
-                        'full': media['owner']
-                    },
-                    'location': media['location'],
-                    'timestamp': media['taken_at_timestamp']
-                }
+            media_type = media['__typename'].replace('Graph', '').lower()
+            if media_type in ['image', 'sidecar', 'video']:
+                if full:
+                    result = {
+                        'full': media,
+                        'type': media_type,
+                        'id': media['id'],
+                        'shortcode': media['shortcode'],
+                        'post_url': f"https://www.instagram.com/p/{media['shortcode']}/",
+                        'dimesions': media['dimensions'],
+                        'src': media['display_url'],
+                        'srcs': media['display_resources'],
+                        'is_video': media['is_video'],
+                        'comments_disabled': media['comments_disabled'],
+                        'likes': media['edge_media_preview_like']['count'],
+                        'owner': {
+                            'id': media['owner']['id'],
+                            'profile_pic_url': media['owner']['profile_pic_url'],
+                            'username': media['owner']['username'],
+                            'media_count': media['owner']['edge_owner_to_timeline_media']['count'],
+                            'full': media['owner']
+                        },
+                        'location': media['location'],
+                        'timestamp': media['taken_at_timestamp']
+                    }
+                else:
+                    result = {
+                        'full': media,
+                        'type': media_type,
+                        'id': media['id'],
+                        'shortcode': media['shortcode'],
+                        'post_url': f"https://www.instagram.com/p/{media['shortcode']}/",
+                        'src': media['display_url'],
+                        'dimesions': media['dimensions'],
+                        'thumbnail_src': media['thumbnail_src'],
+                        'thumbnails': media['thumbnail_resources'],
+                        'is_video': media['is_video'],
+                        'text': media['accessibility_caption'],
+                        'comments': media['edge_media_to_comment']['count'],
+                        'comments_disabled': media['comments_disabled'],
+                        'likes': media['edge_liked_by']['count'],
+                        'owner': media['owner'],
+                        'location': media['location'],
+                        'timestamp': media['taken_at_timestamp']
+                    }
             else:
                 result = {
                     'full': media,
-                    'type': media['__typename'].replace('Graph', '').lower(),
-                    'id': media['id'],
-                    'shortcode': media['shortcode'],
-                    'post_url': f"https://www.instagram.com/p/{media['shortcode']}/",
-                    'src': media['display_url'],
-                    'dimesions': media['dimensions'],
-                    'thumbnail_src': media['thumbnail_src'],
-                    'thumbnails': media['thumbnail_resources'],
-                    'is_video': media['is_video'],
-                    'text': media['accessibility_caption'],
-                    'comments': media['edge_media_to_comment']['count'],
-                    'comments_disabled': media['comments_disabled'],
-                    'likes': media['edge_liked_by']['count'],
-                    'owner': media['owner'],
-                    'location': media['location'],
-                    'timestamp': media['taken_at_timestamp']
+                    'errors': [f'Media of type "{media_type}" not currently supported, returned only full']
                 }
         except BaseException as ex:
-            result['errors'] = [
-                f'Media deserialization error at line {sys.exc_info()[-1].tb_lineno}. Maybe instagram changed  API, returned only full']
+            result = {
+                'full': media,
+                'errors': [f'Media of type "{media_type}" not currently supported, returned only full'f'Media deserialization error at line {sys.exc_info()[-1].tb_lineno}: {ex}. Maybe instagram changed  API, returned only full']
+            }
+        if 'errors' in result.keys():
+            if not len(result['errors']):
+                del result['errors']
         return result
 
     def source_to_profile(
@@ -271,7 +287,7 @@ class InstaChecker:
 
         """
 
-        Translate intagram profile HTML source to result data
+        Translate instagram profile HTML source to result data
 
         :param response_result: HTML source str
         :return: Parsed json dict
@@ -282,7 +298,7 @@ class InstaChecker:
             response_result['type'] = 'profile'
             shared_data_str = response_result['data']
             shared_data_str = shared_data_str.split('window._sharedData = ')[-1]
-            shared_data_str = shared_data_str.split(';')[0]
+            shared_data_str = shared_data_str.split(';</script>')[0]
             shared_data = json.loads(shared_data_str)
             response_result['data'] = shared_data
             if 'entry_data' in response_result['data'].keys():
@@ -296,7 +312,11 @@ class InstaChecker:
                                 if self.debug:
                                     super_print(response_result['data'])
                                 response_result['data'] = response_result['data']['user']
-                                response_result['data'] = self.deserialize_user(response_result['data'])
+                                deserialized_data = self.deserialize_user(response_result['data'])
+                                if 'errors' in deserialized_data.keys():
+                                    response_result['errors'] += deserialized_data['errors']
+                                    del deserialized_data['errors']
+                                response_result['data'] = deserialized_data
                             else:
                                 response_result['success'] = False
                                 response_result['errors'].append(
@@ -318,8 +338,7 @@ class InstaChecker:
                 response_result['errors'].append(f'No entry_data in response body --> window.sharedData')
         except BaseException as ex:
             response_result['success'] = False
-            response_result[
-                'errors'] = f"Can't fetch and parse the source of page. Error: '{ex}'. On line {sys.exc_info()[-1].tb_lineno}"
+            response_result['errors'] = [f"Can't fetch and parse the source of page. Error: '{ex}'. On line {sys.exc_info()[-1].tb_lineno}"]
 
         return response_result
 
@@ -330,7 +349,7 @@ class InstaChecker:
 
         """
 
-        Translate intagram media HTML source to result data
+        Translate instagram media HTML source to result data
 
         :param response_result: HTML source str
         :return: Parsed json dict
@@ -342,7 +361,7 @@ class InstaChecker:
             additional_data_str = response_result['data']
             additional_data_str = additional_data_str.split("window.__additionalDataLoaded('")[-1]
             additional_data_str = additional_data_str.split("/',")[1]
-            additional_data_str = additional_data_str.split(');')[0]
+            additional_data_str = additional_data_str.split(');</script>')[0]
             additional_data = json.loads(additional_data_str)
             response_result['data'] = additional_data
             if 'graphql' in response_result['data'].keys():
@@ -351,7 +370,11 @@ class InstaChecker:
                     response_result['data'] = response_result['data']['shortcode_media']
                     if self.debug:
                         super_print(response_result['data'])
-                    response_result['data'] = self.deserialize_media(response_result['data'], full=True)
+                    deserialized_data = self.deserialize_media(response_result['data'], full=True)
+                    if 'errors' in deserialized_data.keys():
+                        response_result['errors'] += deserialized_data['errors']
+                        del deserialized_data['errors']
+                    response_result['data'] = deserialized_data
                 else:
                     response_result['success'] = False
                     response_result['errors'].append(
